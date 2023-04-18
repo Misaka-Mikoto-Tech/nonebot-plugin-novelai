@@ -54,7 +54,7 @@ aidraw_parser.add_argument(
     "-o", "--override", "-不优化", action="store_true", help="不使用内置优化参数", dest="override"
 )
 aidraw_parser.add_argument(
-    "-m", "--model", "-模型", default='anything-v5-PrtRE.safetensors', type=str, help="使用模型", dest="model"
+    "-m", "--model", "-模型", type=str, help="使用模型", dest="model"
 )
 
 aidraw_matcher = C.shell_command(
@@ -75,7 +75,7 @@ async def aidraw_get(
     user_id = str(event.user_id)
     group_id = str(event.group_id)
     if len(args.tags) == 0:
-        aidraw_matcher.finish(
+        await aidraw_matcher.finish(
 """
 使用方法: @bot 绘画 <提示词，逗号分隔，不可包含连字符> <可选参数>
 
