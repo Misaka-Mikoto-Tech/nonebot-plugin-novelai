@@ -18,16 +18,20 @@ nickname = (
 
 
 class Config(BaseSettings):
+    novelai_mode:str='sd'
+    novelai_site:str='192.168.31.2:7860'
+    novelai_token:str=''
+
     novelai: dict = {"sd": ""}
     """你的服务器配置信息"""
     novelai_webui_config: dict = {}
     novelai_save: int = 1
     """是否保存图片至本地,0为不保存，1保存jpg(丢失图片chunk信息)，2保存图片原本png"""
-    novelai_debug: bool = False
+    novelai_debug: bool = True
     """是否保存追踪信息，这会在图片旁保存同名txt文件"""
-    novelai_paid: int = 0
+    novelai_paid: int = 1
     """0为禁用付费模式，1为点数制，2为严格点数制，3为不限制"""
-    novelai_pure: bool = False
+    novelai_pure: bool = True
     """是否启用简洁返回模式（只返回图片，不返回tag等数据）"""
     novelai_limit: bool = True
     """是否开启限速模式，开启后，每次调用都会检查上次调用时间，如果小于cd则会被拒绝"""
@@ -73,19 +77,19 @@ class Config(BaseSettings):
         return getattr(cls, item)
 
     @validator("novelai_site")
-    def http_start(cls, v: str, filed: ModelField):
+    def http_start(cls, v: str):
         if not v.startswith("http"):
             return v
         return "http://" + v
 
     @validator("novelai_max")
-    def non_negative(cls, v: int, field: ModelField):
+    def non_negative(cls, v: int, values, config, field: ModelField):
         if v < 1:
             return field.default
         return v
 
     @validator("novelai_paid")
-    def paid(cls, v: int, field: ModelField):
+    def paid(cls, v: int, values, config, field: ModelField):
         if v < 0:
             return field.default
         elif v > 3:

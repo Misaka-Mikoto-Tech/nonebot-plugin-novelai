@@ -30,6 +30,7 @@ class Version:
     async def check_update(self):
         """检查更新，并推送"""
         # 每日检查
+        return
         if time.time() - self.lastcheck > 80000:
             await self.check()
         # 如果没有推送，则启动推送流程

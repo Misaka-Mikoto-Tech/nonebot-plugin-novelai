@@ -29,7 +29,7 @@ async def check_safe_method(fifo, img_bytes, message):
                 nsfw_count += 1
             await save_img(fifo, i, label)
         if nsfw_count > 0:
-            message += f"\n有{nsfw_count}张图片太涩了，{nickname}已经帮你吃掉了哦"
+            message += f"\n有{nsfw_count}张图片太涩了，已经帮你吃掉了哦"
     return message
 
 

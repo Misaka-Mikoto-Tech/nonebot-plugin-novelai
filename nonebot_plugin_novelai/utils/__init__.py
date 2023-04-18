@@ -1,9 +1,11 @@
+from nonebot.rule import to_me
+
 # 基础优化tag
 
 BASE_TAG = "masterpiece, best quality,"
 
 # 基础排除tag
-LOW_QUALITY = "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, pubic hair,long neck,blurry"
+LOW_QUALITY = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, pubic hair,long neck,blurry"
 
 # 屏蔽词
 HTAGS = "[, ][^a-zA-Z]*nsfw|nude|naked|nipple|blood|censored|vagina|gag|gokkun|hairjob|tentacle|oral|fellatio|areolae|lactation|paizuri|piercing|sex|footjob|masturbation|hips|penis|testicles|ejaculation|cum|tamakeri|pussy|pubic|clitoris|mons|cameltoe|grinding|crotch|cervix|cunnilingus|insertion|penetration|fisting|fingering|peeing|ass|buttjob|spanked|anus|anal|anilingus|enema|x-ray|wakamezake|humiliation|tally|futa|incest|twincest|pegging|femdom|ganguro|bestiality|gangbang|3P|tribadism|molestation|voyeurism|exhibitionism|rape|spitroast|cock|69|doggystyle|missionary|virgin|shibari|bondage|bdsm|rope|pillory|stocks|bound|hogtie|frogtie|suspension|anal|dildo|vibrator|hitachi|nyotaimori|vore|amputee|transformation|bloody|pornhub[^a-zA-Z]"
@@ -32,13 +34,14 @@ def aliases(*args):
 def cs(cmd: str = "aidraw"):
     from nonebot import get_bot
 
-    command_start = get_bot().config.command_start
+    command_start = "" # get_bot().config.command_start
 
     return "." + cmd if "" in command_start else cmd
 
 
 async def sendtosuperuser(message):
     # 将消息发送给superuser
+    return
     import asyncio
 
     from nonebot import get_bot, get_driver
@@ -60,5 +63,6 @@ from nonebot import CommandGroup
 
 C = CommandGroup(
     cs("aidraw"),
+    rule=to_me(),
     block=True,
 )

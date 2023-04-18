@@ -5,6 +5,7 @@ from argparse import Namespace
 from asyncio import get_running_loop
 from collections import deque
 from pathlib import Path
+from typing import List
 
 import aiofiles
 import aiohttp
@@ -52,6 +53,9 @@ aidraw_parser.add_argument(
 aidraw_parser.add_argument(
     "-o", "--override", "-不优化", action="store_true", help="不使用内置优化参数", dest="override"
 )
+aidraw_parser.add_argument(
+    "-m", "--model", "-模型", default='anything-v5-PrtRE.safetensors', type=str, help="使用模型", dest="model"
+)
 
 aidraw_matcher = C.shell_command(
     "",
@@ -98,7 +102,9 @@ async def aidraw_get(
         # 初始化参数
         args.tags = await prepocess_tags(args.tags)
         args.ntags = await prepocess_tags(args.ntags)
+        logger.info(f'收到绘制请求:user:{user_id}, group:{group_id}, args:{vars(args)}')
         aidraw = Draw(user_id=user_id, group_id=group_id, **vars(args))
+        # logger.info(f'aidraw.user_id:{aidraw.user_id}, aidraw.group_id:{aidraw.group_id}')
         # 检测是否有18+词条
         if not config.novelai_h:
             pattern = re.compile(f"(\s|,|^)({HTAGS})(\s|,|$)")
@@ -134,17 +140,17 @@ async def aidraw_get(
             hasanlas = await anlas_check(aidraw.user_id)
             if hasanlas >= anlascost:
                 await wait_fifo(
-                    aidraw, anlascost, hasanlas - anlascost, message=message
+                    bot, aidraw, anlascost, hasanlas - anlascost, message=message
                 )
             else:
                 await aidraw_matcher.finish(f"你的点数不足，你的剩余点数为{hasanlas}")
         else:
-            await wait_fifo(aidraw, message=message)
+            await wait_fifo(bot, aidraw, message=message)
     else:
         aidraw_matcher.finish(f"novelai插件未开启")
 
 
-async def wait_fifo(aidraw, anlascost=None, anlas=None, message=""):
+async def wait_fifo(bot: Bot, aidraw, anlascost=None, anlas=None, message=""):
     # 创建队列
     list_len = wait_len()
     has_wait = f"排队中，你的前面还有{list_len}人" + message
@@ -155,10 +161,10 @@ async def wait_fifo(aidraw, anlascost=None, anlas=None, message=""):
     if config.novelai_limit:
         await aidraw_matcher.send(has_wait if list_len > 0 else no_wait)
         wait_list.append(aidraw)
-        await fifo_gennerate()
+        await fifo_gennerate(bot)
     else:
         await aidraw_matcher.send(no_wait)
-        await fifo_gennerate(aidraw)
+        await fifo_gennerate(bot, aidraw)
 
 
 def wait_len():
@@ -169,13 +175,13 @@ def wait_len():
     return list_len
 
 
-async def fifo_gennerate(aidraw: Draw = None):
+async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
     # 队列处理
     global gennerating
-    bot: Bot = get_bot()
 
-    async def generate(aidraw: Draw):
+    async def generate(bot: Bot, aidraw: Draw):
         id = aidraw.user_id if config.novelai_antireport else bot.self_id
+        logger.info(f'generate: group_id:{aidraw.group_id}, user_id:{aidraw.user_id}')
         resp = await bot.get_group_member_info(
             group_id=aidraw.group_id, user_id=aidraw.user_id
         )
@@ -190,7 +196,7 @@ async def fifo_gennerate(aidraw: Draw = None):
         )
 
         # 开始生成
-        logger.info(f"队列剩余{wait_len()}人 | 开始生成：{aidraw}")
+        # logger.info(f"队列剩余{wait_len()}人 | 开始生成：{aidraw}")
         try:
             im = await _run_gennerate(aidraw)
         except Exception as e:
@@ -200,7 +206,7 @@ async def fifo_gennerate(aidraw: Draw = None):
                 message += str(i)
             await bot.send_group_msg(message=message, group_id=aidraw.group_id)
         else:
-            logger.info(f"队列剩余{wait_len()}人 | 生成完毕：{aidraw}")
+            # logger.info(f"队列剩余{wait_len()}人 | 生成完毕：{aidraw}")
             if config.novelai_pure:
                 message = MessageSegment.at(aidraw.user_id)
                 for i in im["image"]:
@@ -227,22 +233,22 @@ async def fifo_gennerate(aidraw: Draw = None):
                 )
 
     if aidraw:
-        await generate(aidraw)
+        await generate(bot, aidraw)
 
     if not gennerating:
-        logger.info("队列开始")
+        # logger.info(f"队列开始,长度{len(wait_list)}")
         gennerating = True
 
         while len(wait_list) > 0:
             aidraw = wait_list.popleft()
             try:
-                await generate(aidraw)
+                await generate(bot, aidraw)
             except:
                 pass
 
         gennerating = False
-        logger.info("队列结束")
-        await version.check_update()
+        # logger.info("队列结束")
+        # await version.check_update()
 
 
 async def _run_gennerate(aidraw: Draw):
@@ -279,7 +285,7 @@ emoji = re.compile(
 )
 
 
-async def prepocess_tags(tags: list[str]):
+async def prepocess_tags(tags: List[str]):
     tags: str = "".join([i + " " for i in tags if isinstance(i, str)]).lower().replace("，",',')
     tags = re.sub(emoji, "", tags)
     # 去除CQ码

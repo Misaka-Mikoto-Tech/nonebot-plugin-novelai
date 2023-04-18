@@ -34,9 +34,9 @@ class Draw(DrawBase):
                 "height": self.height,
                 "negative_prompt": self.ntags,
                 "override_settings": {
-                    "filter_nsfw": True if config.novelai_h else False,
+                    # "filter_nsfw": True if config.novelai_h else False,
                     "CLIP_stop_at_last_layers": 2,
-                    "sd_model_checkpoint": "",
+                    "sd_model_checkpoint": self.model or "CounterfeitV25_25.safetensors",
                 },
             }
             if self.img2img:

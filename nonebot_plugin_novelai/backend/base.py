@@ -73,7 +73,7 @@ class DrawBase:
         self.scale: int = int(scale or 11)
         self.strength: float = strength or 0.7
         self.batch: int = batch or 1
-        self.steps: int = steps or 28
+        self.steps: int = steps or 48
         self.noise: float = noise or 0.2
         self.ntags: str = ntags
         self.img2img: bool = False
@@ -81,9 +81,9 @@ class DrawBase:
         self.width, self.height = self.extract_shape(shape)
         # 数值合法检查
         if self.steps <= 0 or self.steps > (
-            self.MAX_STEPS if config.novelai_paid else 28
+            self.MAX_STEPS if config.novelai_paid else 40
         ):
-            self.steps = 28
+            self.steps = 40
         if self.strength < 0 or self.strength > 1:
             self.strength = 0.7
         if self.noise < 0 or self.noise > 1:
@@ -116,6 +116,8 @@ class DrawBase:
         """
         更新cost
         """
+        self.cost = 0
+        return
         if config.novelai_paid == 1:
             anlas = 0
             if (self.width * self.height > 409600) or self.image or self.batch > 1:
@@ -213,8 +215,8 @@ class DrawBase:
         self.result.append(image_new)
         return image_new
 
-    async def png2jpg(raw: bytes):
-        raw: BytesIO = BytesIO(base64.b64decode(raw))
+    async def png2jpg(self, raw_str: str):
+        raw: BytesIO = BytesIO(base64.b64decode(raw_str))
         img_PIL = Image.open(raw).convert("RGB")
         image_new = BytesIO()
         img_PIL.save(image_new, format="JPEG", quality=95)
