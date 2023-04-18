@@ -74,6 +74,30 @@ async def aidraw_get(
 ):
     user_id = str(event.user_id)
     group_id = str(event.group_id)
+    if len(args.tags) == 0:
+        aidraw_matcher.finish(
+"""
+使用方法: @bot 绘画 <提示词，逗号分隔，不可包含连字符> <可选参数>
+
+可选参数:
+步数(steps): -t
+服从度(scale, 建议5~15之间): -c
+数量(batch): -b
+模型（model）: -m
+
+可选模型：
+anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Light
+默认模型: CounterfeitV25_25
+
+示例1:
+@bot 绘画 dusk, sunset, landscape, girl, light blue hair
+示例2:
+@bot 绘画 1girl, outdoors, tree, cloud, black hair, sky, bag, sailor collar, black skirt, looking at viewer, bangs, grass, serafuku, building, house 
+-b 2 -t 40 -c 7 -r 768x512 -m disillusionmix_3
+
+在线tag生成器：wolfchen.top/tag
+""".strip())
+
     # 判断是否禁用，若没禁用，进入处理流程
     if await config.get_value(group_id, "on"):
         message = ""
@@ -209,8 +233,14 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
             # logger.info(f"队列剩余{wait_len()}人 | 生成完毕：{aidraw}")
             if config.novelai_pure:
                 message = MessageSegment.at(aidraw.user_id)
-                for i in im["image"]:
-                    message += i
+                idx = 0
+                img_msg= MessageSegment.text(f'-c {aidraw.scale} -t {aidraw.steps} -m {aidraw.model}\n')
+                for img in im["image"]:
+                    img_msg += f'-s:{aidraw.seed[idx]}\n'
+                    img_msg += img
+                    img_msg += '\n'
+                    idx += 1
+                message += img_msg
                 message_data = await bot.send_group_msg(
                     message=message,
                     group_id=aidraw.group_id,

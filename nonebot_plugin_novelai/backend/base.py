@@ -81,15 +81,17 @@ class DrawBase:
         self.width, self.height = self.extract_shape(shape)
         # 数值合法检查
         if self.steps <= 0 or self.steps > (
-            self.MAX_STEPS if config.novelai_paid else 40
+            self.MAX_STEPS if config.novelai_paid else 50
         ):
-            self.steps = 40
+            self.steps = 50
         if self.strength < 0 or self.strength > 1:
             self.strength = 0.7
         if self.noise < 0 or self.noise > 1:
             self.noise = 0.2
         if self.scale <= 0 or self.scale > 30:
             self.scale = 11
+        if self.model and (not self.model.endswith('.safetensors')):
+            self.model += '.safetensors'
         # 多图时随机填充剩余seed
         for i in range(self.batch - 1):
             self.seed.append(random.randint(0, 4294967295))
