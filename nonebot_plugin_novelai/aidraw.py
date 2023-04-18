@@ -95,7 +95,7 @@ anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Li
 @bot 绘画 1girl, outdoors, tree, cloud, black hair, sky, bag, sailor collar, black skirt, looking at viewer, bangs, grass, serafuku, building, house 
 -b 2 -t 40 -c 7 -r 768x512 -m disillusionmix_3
 
-在线tag生成器：wolfchen.top/tag
+在线tag生成器：https://wolfchen.top/tag/
 """.strip())
 
     # 判断是否禁用，若没禁用，进入处理流程
