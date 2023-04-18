@@ -73,7 +73,7 @@ class DrawBase:
         self.scale: int = int(scale or 11)
         self.strength: float = strength or 0.7
         self.batch: int = batch or 1
-        self.steps: int = steps or 48
+        self.steps: int = steps or 40
         self.noise: float = noise or 0.2
         self.ntags: str = ntags
         self.img2img: bool = False
