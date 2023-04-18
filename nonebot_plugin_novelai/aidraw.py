@@ -54,7 +54,7 @@ aidraw_parser.add_argument(
     "-o", "--override", "-不优化", action="store_true", help="不使用内置优化参数", dest="override"
 )
 aidraw_parser.add_argument(
-    "-m", "--model", "-模型", default='anything-v5-PrtRE.safetensors', type=str, help="使用模型", dest="model"
+    "-m", "--model", "-模型", type=str, help="使用模型", dest="model"
 )
 
 aidraw_matcher = C.shell_command(
