@@ -10,7 +10,7 @@ LOW_QUALITY = "nsfw, lowres, bad anatomy, bad hands, text, error, missing finger
 # 屏蔽词
 HTAGS = "[, ][^a-zA-Z]*nsfw|nude|naked|nipple|blood|censored|vagina|gag|gokkun|hairjob|tentacle|oral|fellatio|areolae|lactation|paizuri|piercing|sex|footjob|masturbation|hips|penis|testicles|ejaculation|cum|tamakeri|pussy|pubic|clitoris|mons|cameltoe|grinding|crotch|cervix|cunnilingus|insertion|penetration|fisting|fingering|peeing|ass|buttjob|spanked|anus|anal|anilingus|enema|x-ray|wakamezake|humiliation|tally|futa|incest|twincest|pegging|femdom|ganguro|bestiality|gangbang|3P|tribadism|molestation|voyeurism|exhibitionism|rape|spitroast|cock|69|doggystyle|missionary|virgin|shibari|bondage|bdsm|rope|pillory|stocks|bound|hogtie|frogtie|suspension|anal|dildo|vibrator|hitachi|nyotaimori|vore|amputee|transformation|bloody|pornhub[^a-zA-Z]"
 # 中文指令开始词
-CHINESE_COMMAND = {"绘画", "咏唱", "召唤", "约稿"}
+CHINESE_COMMAND = {"绘画", "绘图", "画图", "咏唱", "召唤", "约稿"}
 
 SHAPE_MAP = {
     "square": [640, 640],
