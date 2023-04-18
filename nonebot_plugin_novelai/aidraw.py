@@ -97,6 +97,7 @@ async def aidraw_get(
 -b 2 -t 40 -c 7 -r 768x512 -m disillusionmix_3
 
 在线tag生成器：https://wolfchen.top/tag/
+元素法典：https://docs.qq.com/doc/DWHl3am5Zb05QbGVs
 """.strip())
 
     # 判断是否禁用，若没禁用，进入处理流程
