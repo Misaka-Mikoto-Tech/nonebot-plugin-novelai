@@ -87,9 +87,8 @@ async def aidraw_get(
 数量(batch): -b
 模型（model）: -m
 
-可选模型：
-anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Light
 默认模型: CounterfeitV25_25
+可选模型：CounterfeitV25_25, anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Light
 
 示例1:
 @bot 绘画 dusk, sunset, landscape, girl, light blue hair
