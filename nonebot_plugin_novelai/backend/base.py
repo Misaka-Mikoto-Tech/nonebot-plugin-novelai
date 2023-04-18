@@ -90,8 +90,11 @@ class DrawBase:
             self.noise = 0.2
         if self.scale <= 0 or self.scale > 30:
             self.scale = 11
-        if self.model and (not self.model.endswith('.safetensors')):
-            self.model += '.safetensors'
+        if self.model:
+            if not self.model.endswith('.safetensors'):
+                self.model += '.safetensors'
+        else:
+            self.model = "CounterfeitV25_25.safetensors"
         # 多图时随机填充剩余seed
         for i in range(self.batch - 1):
             self.seed.append(random.randint(0, 4294967295))

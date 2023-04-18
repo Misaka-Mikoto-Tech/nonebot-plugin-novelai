@@ -234,9 +234,10 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
             if config.novelai_pure:
                 message = MessageSegment.at(aidraw.user_id)
                 idx = 0
-                img_msg= MessageSegment.text(f'-c {aidraw.scale} -t {aidraw.steps} -m {aidraw.model}\n')
+                model = aidraw.model.split('.')[0] if aidraw.model else 'None'
+                img_msg= MessageSegment.text(f'-c {aidraw.scale} -t {aidraw.steps} -m {model}\n')
                 for img in im["image"]:
-                    img_msg += f'-s:{aidraw.seed[idx]}\n'
+                    img_msg += f'-s {aidraw.seed[idx]}\n'
                     img_msg += img
                     img_msg += '\n'
                     idx += 1
