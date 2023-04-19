@@ -68,7 +68,7 @@ class DrawBase:
         self.time = time.strftime("%Y-%m-%d %H:%M:%S")
         self.user_id: str = user_id
         self.tags: str = tags
-        self.tags_user:str = tags
+        self.tags_user:str = tags if tags.strip()!=',' else ''
         self.seed: list[int] = [seed or random.randint(0, 4294967295)]
         self.group_id: str = group_id
         self.scale: int = int(scale or 11)
@@ -77,7 +77,7 @@ class DrawBase:
         self.steps: int = steps or 40
         self.noise: float = noise or 0.2
         self.ntags: str = ntags
-        self.ntags_user = ntags
+        self.ntags_user =  ntags if ntags.strip()!=',' else ''
         self.img2img: bool = False
         self.image: str = None
         self.width, self.height = self.extract_shape(shape)

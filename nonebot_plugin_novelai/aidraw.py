@@ -94,7 +94,9 @@ async def aidraw_get(
     err_msg:str = ''
     args = None
     try:
-        args = aidraw_parser.parse_args(command_arg.extract_plain_text().strip())
+        args_str = command_arg.extract_plain_text().strip().replace("，",',').replace("“",'"').replace("”",'"').replace('\r', '').replace('\n', ' ').replace(',',' ')
+        args_lst = [i for i in args_str.split(' ') if i != ''] 
+        args = aidraw_parser.parse_args(args_lst)
     except Exception as ex:
         err_msg = str(ex)
 
@@ -349,19 +351,19 @@ emoji = re.compile(
 
 
 async def prepocess_tags(tags: List[str]):
-    tags: str = "".join([i for i in tags if isinstance(i, str)]).lower().replace("，",',').replace("“",'"').replace("”",'"')
-    tags = re.sub(emoji, "", tags)
+    # tags: str = "".join([i for i in tags if isinstance(i, str)]).lower().replace("，",',').replace("“",'"').replace("”",'"')
+    tags = [re.sub(emoji, "", tag) for tag in tags] 
     # 去除CQ码
-    tags = re.sub("\[CQ[^\s]*?]", "", tags)
+    # tags = re.sub("\[CQ[^\s]*?]", "", tags)
     # 检测中文
-    taglist = tags.split(",")
+    taglist = tags #tags.split(",")
     tagzh = ""
     tags_ = ""
-    for i in taglist:
-        if re.search("[\u4e00-\u9fa5]", tags):
-            tagzh += f"{i},"
+    for tag in taglist:
+        if re.search("[\u4e00-\u9fa5]", tag):
+            tagzh += f"{tag},"
         else:
-            tags_ += f"{i},"
+            tags_ += f"{tag},"
     if tagzh:
         tags_en = await translate(tagzh, "en")
         if tags_en == tagzh:
