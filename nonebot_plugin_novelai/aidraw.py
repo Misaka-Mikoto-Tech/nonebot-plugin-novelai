@@ -94,9 +94,16 @@ async def aidraw_get(
     err_msg:str = ''
     args = None
     try:
-        args_str = command_arg.extract_plain_text().strip().replace("，",',').replace("“",'"').replace("”",'"').replace('\r', '').replace('\n', ' ').replace(',','#$$$#')
-        args_lst = [i for i in args_str.split('#$$$#') if i != ''] 
-        args = aidraw_parser.parse_args(args_lst)
+        str_arg = command_arg.extract_plain_text().strip().replace("，",',').replace("“",'"').replace("”",'"').replace('\r', '').replace('\n', ' ')
+        arg_with_name_idx = str_arg.find(' -') # 具名参数开始
+        str_tags = str_arg # tag 可能有空格，因此特殊处理
+        str_last = ''
+        if arg_with_name_idx > 0:
+            str_tags = str_arg[:arg_with_name_idx]
+            str_last = str_arg[arg_with_name_idx:]
+        args =str_tags.split(',') + str_last.split(' ')
+        args = [i for i in args if i]
+        args = aidraw_parser.parse_args(args)
     except Exception as ex:
         err_msg = str(ex)
 
