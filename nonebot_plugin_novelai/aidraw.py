@@ -118,10 +118,10 @@ async def aidraw_get(
 
 可选参数:
 步数(steps): -t
-服从度(scale, 建议5~15之间): -c
-分辨率(resolution,不超过1024): -r
+服从度(scale, 建议5~15): -c
+分辨率(resolution,最大1024): -r
 随机种子(seed): -s
-图生图修改强度(strength): -e
+图生图修改强度(strength,建议0.5~0.7): -e
 数量(batch): -b
 模型（model）: -m
 
@@ -136,7 +136,9 @@ async def aidraw_get(
 
 在线tag生成器：https://wolfchen.top/tag/
 元素法典：https://docs.qq.com/doc/DWHl3am5Zb05QbGVs
+
 * 提示词可以混合中英文, 但中文翻译后可能不准确 *
+* 回复有图的消息或者一条消息同时发送提示词和图片将切换为图生图模式 *
 """.strip())
 
     # 判断是否禁用，若没禁用，进入处理流程
