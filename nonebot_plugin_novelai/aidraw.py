@@ -11,10 +11,10 @@ import aiofiles
 import aiohttp
 from aiohttp.client_exceptions import ClientConnectorError, ClientOSError
 from nonebot import get_bot
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment, Message
 from nonebot.exception import ParserExit
 from nonebot.log import logger
-from nonebot.params import ShellCommandArgs
+from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 from nonebot.rule import ArgumentParser
 
@@ -64,18 +64,17 @@ aidraw_matcher = C.command(
 
 @aidraw_matcher.handle()
 async def aidraw_get(
-    bot: Bot, event: GroupMessageEvent
+    bot: Bot, event: GroupMessageEvent, command_arg: Message = CommandArg()
 ):
     user_id = str(event.user_id)
     group_id = str(event.group_id)
 
     err_msg:str = ''
-    for msg in event.message["text"]:
-        try:
-            args = aidraw_parser.parse_args(msg)
-            break
-        except Exception as ex:
-            err_msg = str(ex)
+    args = None
+    try:
+        args = aidraw_parser.parse_args(command_arg.extract_plain_text().strip())
+    except Exception as ex:
+        err_msg = str(ex)
 
     if not args:
         logger.error(f'解析指令失败:{err_msg}')
@@ -245,7 +244,8 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
                 message = MessageSegment.at(aidraw.user_id)
                 idx = 0
                 model = aidraw.model.split('.')[0] if aidraw.model else 'None'
-                img_msg= MessageSegment.text(f'-c {aidraw.scale} -t {aidraw.steps} -m {model}\n')
+                ntags = f'-ntags {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
+                img_msg= MessageSegment.text(f'绘画 {aidraw.tags_user} {ntags}\n -c {aidraw.scale} -t {aidraw.steps} -m {model}\n')
                 for img in im["image"]:
                     img_msg += f'-s {aidraw.seed[idx]}\n'
                     img_msg += img
@@ -327,7 +327,7 @@ emoji = re.compile(
 
 
 async def prepocess_tags(tags: List[str]):
-    tags: str = "".join([i + " " for i in tags if isinstance(i, str)]).lower().replace("，",',')
+    tags: str = "".join([i for i in tags if isinstance(i, str)]).lower().replace("，",',').replace("“",'"').replace("”",'"')
     tags = re.sub(emoji, "", tags)
     # 去除CQ码
     tags = re.sub("\[CQ[^\s]*?]", "", tags)

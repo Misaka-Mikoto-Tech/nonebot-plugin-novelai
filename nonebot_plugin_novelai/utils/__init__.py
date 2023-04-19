@@ -2,7 +2,7 @@ from nonebot.rule import to_me
 
 # 基础优化tag
 
-BASE_TAG = "masterpiece, best quality,"
+BASE_TAG = "masterpiece, best quality"
 
 # 基础排除tag
 LOW_QUALITY = "{{nsfw}}, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, pubic hair,long neck,blurry"
