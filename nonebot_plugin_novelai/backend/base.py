@@ -97,9 +97,9 @@ class DrawBase:
                 self.model += '.safetensors'
         else:
             self.model = "CounterfeitV25_25.safetensors"
-        # 多图时随机填充剩余seed
+        # 多图时seed递增
         for i in range(self.batch - 1):
-            self.seed.append(random.randint(0, 4294967295))
+            self.seed.append(self.seed[0] + i + 1)
         # 计算cost
         self.update_cost()
 

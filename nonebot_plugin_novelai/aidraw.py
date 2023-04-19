@@ -121,6 +121,7 @@ async def aidraw_get(
 服从度(scale, 建议5~15之间): -c
 分辨率(resolution,不超过1024): -r
 随机种子(seed): -s
+图生图修改强度(strength): -e
 数量(batch): -b
 模型（model）: -m
 
