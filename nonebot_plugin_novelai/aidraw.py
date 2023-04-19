@@ -174,6 +174,14 @@ async def aidraw_get(
             pattern = re.compile(f"(\s|,|^)({HTAGS})(\s|,|$)")
             if re.search(pattern, aidraw.tags) is not None:
                 await aidraw_matcher.finish(f"H是不行的!")
+        
+        aidraw.tags_user = aidraw.tags.strip()
+        aidraw.ntags_user = aidraw.ntags.strip()
+        if aidraw.tags_user and aidraw.tags_user[-1]==',':
+            aidraw.tags_user = aidraw.tags_user[:-1]
+        if aidraw.ntags_user and aidraw.ntags_user[-1]==',':
+            aidraw.ntags_user = aidraw.ntags_user[:-1]
+        
         if not args.override:
             aidraw.tags = (
                 BASE_TAG + await config.get_value(group_id, "tags") + "," + aidraw.tags
