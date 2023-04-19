@@ -57,23 +57,30 @@ aidraw_parser.add_argument(
     "-m", "--model", "-模型", type=str, help="使用模型", dest="model"
 )
 
-aidraw_matcher = C.shell_command(
+aidraw_matcher = C.command(
     "",
     aliases=CHINESE_COMMAND,
-    parser=aidraw_parser,
 )
 
 @aidraw_matcher.handle()
-async def aidraw_get(args: ParserExit = ShellCommandArgs()):
-    aidraw_matcher.finish("命令解析出错了!请不要输入奇奇怪怪的字符哦~(引号不闭合也不可以哦)")
-
-
-@aidraw_matcher.handle()
 async def aidraw_get(
-    bot: Bot, event: GroupMessageEvent, args: Namespace = ShellCommandArgs()
+    bot: Bot, event: GroupMessageEvent
 ):
     user_id = str(event.user_id)
     group_id = str(event.group_id)
+
+    err_msg:str = ''
+    for msg in event.message["text"]:
+        try:
+            args = aidraw_parser.parse_args(msg)
+            break
+        except Exception as ex:
+            err_msg = str(ex)
+
+    if not args:
+        logger.error(f'解析指令失败:{err_msg}')
+        await aidraw_matcher.finish(f"命令解析出错了!请不要输入奇奇怪怪的字符哦~(提示词包含连字符时需要用引号括起来哦)")
+
     if len(args.tags) == 0:
         await aidraw_matcher.finish(
 """
@@ -98,6 +105,7 @@ async def aidraw_get(
 
 在线tag生成器：https://wolfchen.top/tag/
 元素法典：https://docs.qq.com/doc/DWHl3am5Zb05QbGVs
+* 提示词可以混合中英文, 但中文翻译后可能不准确 *
 """.strip())
 
     # 判断是否禁用，若没禁用，进入处理流程
