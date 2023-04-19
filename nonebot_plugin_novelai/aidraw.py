@@ -102,7 +102,7 @@ async def aidraw_get(
             str_tags = str_arg[:arg_with_name_idx]
             str_last = str_arg[arg_with_name_idx:]
         args =str_tags.split(',') + str_last.split(' ')
-        args = [i for i in args if i]
+        args = [i.strip() for i in args if i]
         args = aidraw_parser.parse_args(args)
     except Exception as ex:
         err_msg = str(ex)
@@ -284,7 +284,7 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
                 idx = 0
                 model = aidraw.model.split('.')[0] if aidraw.model else 'None'
                 ntags = f'-ntags {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
-                img_msg= MessageSegment.text(f'绘画 {aidraw.tags_user} {ntags}\n -c {aidraw.scale} -t {aidraw.steps} -m {model}\n')
+                img_msg= MessageSegment.text(f'绘画 {aidraw.tags_user} {ntags}\n -c {aidraw.scale} -t {aidraw.steps} -r {aidraw.width}x{aidraw.height} -m {model}\n')
                 for img in im["image"]:
                     img_msg += f'-s {aidraw.seed[idx]}\n'
                     img_msg += img
@@ -384,7 +384,7 @@ async def prepocess_tags(tags: List[str]):
         if tags_en == tagzh:
             return ""
         else:
-            tags_ += tags_en
+            tags_ += tags_en.strip()
     return tags_
 
 
