@@ -126,7 +126,8 @@ async def aidraw_get(
 模型（model）: -m
 
 默认模型: CounterfeitV25_25
-可选模型：CounterfeitV25_25, anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Light, lofi_V21, revAnimated_v122, neverendingDreamNED_bakedVae
+可选模型: CounterfeitV25_25, anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Light, lofi_V21, revAnimated_v122, neverendingDreamNED_bakedVae
+lora: blindbox_V1Mix, Moxin_10
 
 示例1:
 @bot 绘画 dusk, sunset, landscape, girl, light blue hair
