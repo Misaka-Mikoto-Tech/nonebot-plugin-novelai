@@ -94,8 +94,8 @@ async def aidraw_get(
     err_msg:str = ''
     args = None
     try:
-        args_str = command_arg.extract_plain_text().strip().replace("，",',').replace("“",'"').replace("”",'"').replace('\r', '').replace('\n', ' ').replace(',',' ')
-        args_lst = [i for i in args_str.split(' ') if i != ''] 
+        args_str = command_arg.extract_plain_text().strip().replace("，",',').replace("“",'"').replace("”",'"').replace('\r', '').replace('\n', ' ').replace(',','#$$$#')
+        args_lst = [i for i in args_str.split('#$$$#') if i != ''] 
         args = aidraw_parser.parse_args(args_lst)
     except Exception as ex:
         err_msg = str(ex)
