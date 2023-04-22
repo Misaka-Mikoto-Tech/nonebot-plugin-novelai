@@ -15,7 +15,6 @@ from ..utils import SHAPE_MAP
 
 class DrawBase:
     MAX_RESOLUTION: int = 16
-    sampler: str
     MAX_STEPS: int = 50
 
     def __init__(
@@ -32,6 +31,7 @@ class DrawBase:
         noise: float = None,
         shape: str = "p",
         model: str = None,
+        sampler: str = None,
         **kwargs,
     ):
         """
@@ -51,6 +51,7 @@ class DrawBase:
                 该值会被设置限制，并不会严格遵守输入
                 类初始化后,该参数会被拆分为:width:和:height:
         :model: 指定的模型，模型名称在配置文件中手动设置。不指定模型则按照负载均衡自动选择
+        :sampler: 采样器，默认Euler a
 
         AIDRAW还包含了以下几种内置的参数
         :status: 记录了AIDRAW的状态,默认为0等待中(处理中)
@@ -81,6 +82,7 @@ class DrawBase:
         self.img2img: bool = False
         self.image: str = None
         self.width, self.height = self.extract_shape(shape)
+        self.sampler = sampler or "Euler a"
         # 数值合法检查
         if self.steps <= 0 or self.steps > (
             self.MAX_STEPS if config.novelai_paid else 50

@@ -5,7 +5,6 @@ from .base import DrawBase
 class Draw(DrawBase):
     """队列中的单个请求"""
 
-    sampler: str = "k_euler_ancestral"
     MAX_RESOLUTION: int = 32
     MAX_STEPS: int = 200
 
@@ -38,6 +37,7 @@ class Draw(DrawBase):
                     "CLIP_stop_at_last_layers": 2,
                     "sd_model_checkpoint": self.model,
                 },
+                "sampler_index": self.sampler,
             }
             if self.img2img:
                 parameters.update(

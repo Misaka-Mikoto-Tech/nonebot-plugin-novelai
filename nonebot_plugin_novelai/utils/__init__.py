@@ -1,3 +1,5 @@
+from argparse import ArgumentParser, Namespace
+from typing import List, Optional, Tuple
 from nonebot.rule import to_me
 
 # 基础优化tag
@@ -66,3 +68,37 @@ C = CommandGroup(
     rule=to_me(),
     block=True,
 )
+
+import nonebot_plugin_htmlrender
+async def text_to_img(text):
+    img = await nonebot_plugin_htmlrender.text_to_pic(text)
+    return img
+
+def parse_args(arg_text:str, parser: ArgumentParser) -> Tuple[Optional[Namespace], str]:
+    arg_text = arg_text.strip().replace("，",',').replace("“","'").replace("”","'").replace('"', "'").replace('\r', '').replace('\n', ' ')
+    arg_lst:List[str] = []
+    arg_begin = 0
+    in_squote = False
+    for i in range(len(arg_text)):
+        chr = arg_text[i]
+        if in_squote: # 单引号内只有再次遇到单引号才定义为结束
+            if chr == "'":
+                arg_lst.append(arg_text[arg_begin: i])
+                arg_begin = i + 1
+                in_squote = False
+        elif chr == "'": # 不在单引号内遇到单引号定义为开始
+            arg_begin = i + 1
+            in_squote = True
+        elif chr in [',', ' ']:
+            arg_lst.append(arg_text[arg_begin: i])
+            arg_begin = i + 1
+
+    arg_lst.append(arg_text[arg_begin: len(arg_text)])
+    arg_lst = [i.strip() for i in arg_lst if i]
+    err_msg=''
+    try:
+        args_ns = parser.parse_args(arg_lst)
+    except Exception as ex:
+        args_ns = None
+        err_msg = str(ex)
+    return args_ns, err_msg

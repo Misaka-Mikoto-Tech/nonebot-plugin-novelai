@@ -23,7 +23,7 @@ from .backend import Draw
 from .config import config
 from .plugins.anlas import anlas_check, anlas_set
 from .plugins.daylimit import DayLimit
-from .utils import BASE_TAG, CHINESE_COMMAND, HTAGS, LOW_QUALITY, sendtosuperuser,C
+from .utils import BASE_TAG, CHINESE_COMMAND, HTAGS, LOW_QUALITY, parse_args, sendtosuperuser,C, text_to_img
 from .utils.translation import translate
 from .version import version
 
@@ -50,6 +50,9 @@ aidraw_parser.add_argument(
 )
 aidraw_parser.add_argument(
     "-n", "--noise", "-噪声", type=float, help="修改噪声", dest="noise"
+)
+aidraw_parser.add_argument(
+    "-p", "--sampler", "-采样器", type=str, help="修改采样器", dest="sampler"
 )
 aidraw_parser.add_argument(
     "-o", "--override", "-不优化", action="store_true", help="不使用内置优化参数", dest="override"
@@ -91,56 +94,16 @@ async def aidraw_get(
     user_id = str(event.user_id)
     group_id = str(event.group_id)
 
-    err_msg:str = ''
-    args = None
-    try:
-        str_arg = command_arg.extract_plain_text().strip().replace("，",',').replace("“",'"').replace("”",'"').replace('\r', '').replace('\n', ' ')
-        arg_with_name_idx = str_arg.find(' -') # 具名参数开始
-        str_tags = str_arg # tag 可能有空格，因此特殊处理
-        str_last = ''
-        if arg_with_name_idx > 0:
-            str_tags = str_arg[:arg_with_name_idx]
-            str_last = str_arg[arg_with_name_idx:]
-        args =str_tags.split(',') + str_last.split(' ')
-        args = [i.strip() for i in args if i]
-        args = aidraw_parser.parse_args(args)
-    except Exception as ex:
-        err_msg = str(ex)
+    args, err_msg = parse_args(command_arg.extract_plain_text().strip(), aidraw_parser)
 
     if not args:
         logger.error(f'解析指令失败:{err_msg}')
         await aidraw_matcher.finish(f"命令解析出错了!请不要输入奇奇怪怪的字符哦~(提示词包含连字符时需要用引号括起来哦)")
 
     if len(args.tags) == 0:
-        await aidraw_matcher.finish(
-"""
-使用方法: @bot 绘画 <提示词，逗号分隔，不可包含连字符> <可选参数>
-
-可选参数:
-步数(steps): -t
-服从度(scale, 建议5~15): -c
-分辨率(resolution,最大1024): -r
-随机种子(seed): -s
-图生图修改强度(strength,建议0.5~0.7): -e
-数量(batch): -b
-模型（model）: -m
-
-默认模型: CounterfeitV25_25
-可选模型: CounterfeitV25_25, anything-v5-PrtRE, disillusionmix_3, chilloutmix_NiPrunedFp32Fix, guofeng3_v32Light, lofi_V21, revAnimated_v122, neverendingDreamNED_bakedVae
-lora模型: blindbox_V1Mix, Moxin_10
-
-示例1:
-@bot 绘画 dusk, sunset, landscape, girl, light blue hair
-示例2:
-@bot 绘画 1girl, outdoors, tree, cloud, black hair, sky, bag, sailor collar, black skirt, looking at viewer, bangs, grass, serafuku, building, house 
--b 2 -t 40 -c 7 -r 768x512 -m disillusionmix_3
-
-在线tag生成器：https://wolfchen.top/tag/
-元素法典：https://docs.qq.com/doc/DWHl3am5Zb05QbGVs
-
-* 提示词可以混合中英文, 但中文翻译后可能不准确 *
-* 回复有图的消息或者一条消息同时发送提示词和图片将切换为图生图模式 *
-""".strip())
+        help_msg = MessageSegment.image(await get_help_image())
+        help_msg += "在线文档: https://docs.qq.com/doc/DSE5YUG9wRmJUUVdp"
+        await aidraw_matcher.finish(help_msg)
 
     # 判断是否禁用，若没禁用，进入处理流程
     if await config.get_value(group_id, "on"):
@@ -286,9 +249,16 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
             if config.novelai_pure:
                 message = MessageSegment.at(aidraw.user_id)
                 idx = 0
+
                 model = aidraw.model.split('.')[0] if aidraw.model else 'None'
                 ntags = f'-ntags {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
-                img_msg= MessageSegment.text(f'绘画 {aidraw.tags_user} {ntags}\n -c {aidraw.scale} -t {aidraw.steps} -r {aidraw.width}x{aidraw.height} -m {model}\n')
+                prompt_txt = f'绘画 {aidraw.tags_user} {ntags} \n'
+                prompt_txt += f'-p "{aidraw.sampler}" -c {aidraw.scale} -t {aidraw.steps} '
+                if aidraw.img2img:
+                    prompt_txt += f'-e {aidraw.strength} -n {aidraw.noise} '
+                prompt_txt += f'\n-r {aidraw.width}x{aidraw.height} -m {model}'
+                
+                img_msg= MessageSegment.image(await text_to_img(prompt_txt))
                 for img in im["image"]:
                     img_msg += f'-s {aidraw.seed[idx]}\n'
                     img_msg += img
@@ -406,3 +376,14 @@ async def save_img(request, img_bytes: bytes, extra: str = ""):
         if config.novelai_debug:
             async with aiofiles.open(str(file) + ".txt", "w") as f:
                 await f.write(repr(request))
+
+async def get_help_image() -> bytes:
+    """生成帮助文本图片"""
+    path = Path("data/novelai/help_text.txt")
+    text=""
+    if path.exists():
+        async with aiofiles.open(path,"r", encoding="utf-8", errors="ignore") as f:
+            lines = await f.readlines()
+            text = "\n".join(lines)
+    img = await text_to_img(text)
+    return img
