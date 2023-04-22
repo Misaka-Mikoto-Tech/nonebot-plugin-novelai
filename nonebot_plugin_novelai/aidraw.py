@@ -94,11 +94,11 @@ async def aidraw_get(
     user_id = str(event.user_id)
     group_id = str(event.group_id)
 
-    args, err_msg = parse_args(command_arg.extract_plain_text().strip(), aidraw_parser)
+    args, err_msg = parse_args(command_arg.extract_plain_text(), aidraw_parser)
 
     if not args:
         logger.error(f'解析指令失败:{err_msg}')
-        await aidraw_matcher.finish(f"命令解析出错了!请不要输入奇奇怪怪的字符哦~(提示词包含连字符时需要用引号括起来哦)")
+        await aidraw_matcher.finish(f"命令解析出错了!(提示词包含连字符或参数包含空格时需要用引号括起来哦)")
 
     if len(args.tags) == 0:
         help_msg = MessageSegment.image(await get_help_image())
@@ -384,6 +384,6 @@ async def get_help_image() -> bytes:
     if path.exists():
         async with aiofiles.open(path,"r", encoding="utf-8", errors="ignore") as f:
             lines = await f.readlines()
-            text = "\n".join(lines)
+            text = "".join(lines)
     img = await text_to_img(text)
     return img
