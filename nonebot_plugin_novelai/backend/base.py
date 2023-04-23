@@ -98,7 +98,7 @@ class DrawBase:
             if not self.model.endswith('.safetensors'):
                 self.model += '.safetensors'
         else:
-            self.model = "CounterfeitV25_25.safetensors"
+            self.model = "anything-v5-PrtRE.safetensors"
         # 多图时seed递增
         for i in range(self.batch - 1):
             self.seed.append(self.seed[0] + i + 1)
