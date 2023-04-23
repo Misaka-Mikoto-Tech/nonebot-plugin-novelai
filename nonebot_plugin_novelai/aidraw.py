@@ -1,4 +1,5 @@
 import hashlib
+import html
 import re
 import time
 from argparse import Namespace
@@ -52,7 +53,7 @@ aidraw_parser.add_argument(
     "-n", "--noise", "-噪声", type=float, help="修改噪声", dest="noise"
 )
 aidraw_parser.add_argument(
-    "-p", "--sampler", "-采样器", type=str, help="修改采样器", dest="sampler"
+    "-sp", "--sampler", "-采样器", type=str, help="修改采样器", dest="sampler"
 )
 aidraw_parser.add_argument(
     "-o", "--override", "-不优化", action="store_true", help="不使用内置优化参数", dest="override"
@@ -251,8 +252,8 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
                 idx = 0
 
                 model = aidraw.model.split('.')[0] if aidraw.model else 'None'
-                ntags = f'-ntags {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
-                prompt_txt = f'绘画 {aidraw.tags_user} {ntags} \n'
+                ntags = f'-n {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
+                prompt_txt = f'绘画 {html.escape(aidraw.tags_user)} \n{html.escape(ntags)} \n\n' # 不转义 lora 标签会不显示
                 prompt_txt += f'-p "{aidraw.sampler}" -c {aidraw.scale} -t {aidraw.steps} '
                 if aidraw.img2img:
                     prompt_txt += f'-e {aidraw.strength} -n {aidraw.noise} '
