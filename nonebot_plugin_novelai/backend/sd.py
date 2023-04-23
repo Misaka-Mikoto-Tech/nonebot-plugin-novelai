@@ -37,7 +37,7 @@ class Draw(DrawBase):
                     "CLIP_stop_at_last_layers": 2,
                     "sd_model_checkpoint": self.model,
                 },
-                "sampler_index": self.sampler,
+                "sampler_name": self.sampler,
             }
             if self.img2img:
                 parameters.update(
