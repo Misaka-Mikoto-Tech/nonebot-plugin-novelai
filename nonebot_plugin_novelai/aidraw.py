@@ -99,7 +99,7 @@ async def aidraw_get(
 
     if not args:
         logger.error(f'解析指令失败:{err_msg}')
-        await aidraw_matcher.finish(f"命令解析出错了!(提示词包含连字符或参数包含空格时需要用引号括起来哦)")
+        await aidraw_matcher.finish(f"命令解析出错了哦! 请仅回复“绘画”两个字查看使用帮助~")
 
     if len(args.tags) == 0:
         help_msg = MessageSegment.image(await get_help_image())

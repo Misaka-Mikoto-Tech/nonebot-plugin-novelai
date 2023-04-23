@@ -77,6 +77,28 @@ async def text_to_img(text):
 def parse_args(arg_text:str, parser: ArgumentParser) -> Tuple[Optional[Namespace], str]:
     arg_text = arg_text.strip().replace("，",',').replace("“","'").replace("”","'").replace('"', "'").replace('\r', '').replace('\n', ' ')
     arg_lst:List[str] = []
+
+    # tags 和 utags 特殊处理，因为它们是逗号分割，且中间可能有空格, 而除此之外的参数是空格分割
+    idx = arg_text.find(' -');
+    arg_tags = arg_text
+    arg_ntags = ''
+    if idx > 0:
+        arg_tags = arg_text[:idx]
+        arg_text = arg_text[idx:]
+        arg_lst += arg_tags.split(',')
+    idx0 = arg_text.find(' -u ')
+    idx1 = arg_text.find(' --ntags ')
+    if idx0 >= 0 or idx1 >= 0: # 提前提取负面标签并将其对应字符串从待分析字符串中剔除
+        idx = idx0 if idx0 >= 0 else idx1
+        idx_ntags_end = arg_text.find(' -', idx + 1) # 负面标签后面是否还有参数
+        idx_ntags_end = idx_ntags_end if idx_ntags_end >= 0 else len(arg_text)
+        arg_ntags = arg_text[idx:idx_ntags_end]
+        arg_text = arg_text.replace(arg_ntags, '')
+
+        arg_lst.append('-u')
+        arg_ntags = arg_ntags[len(' -u '):] if idx0 >= 0 else arg_ntags[len(' --ntags '):]
+        arg_lst += arg_ntags.split(',')
+
     arg_begin = 0
     in_squote = False
     for i in range(len(arg_text)):
