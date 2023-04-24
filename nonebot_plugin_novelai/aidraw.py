@@ -252,8 +252,8 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
                 idx = 0
 
                 model = aidraw.model.split('.')[0] if aidraw.model else 'None'
-                ntags = f'-u {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
-                prompt_txt = f'绘画 {html.escape(aidraw.tags_user)} \n{html.escape(ntags)} \n\n' # 不转义 lora 标签会不显示
+                ntags = f'\n-u {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
+                prompt_txt = f'绘画 {html.escape(aidraw.tags_user)} {html.escape(ntags)} \n\n' # 不转义 lora 标签会不显示
                 prompt_txt += f'-p "{aidraw.sampler}" -c {aidraw.scale} -t {aidraw.steps} '
                 if aidraw.img2img:
                     prompt_txt += f'-e {aidraw.strength} -n {aidraw.noise} '
