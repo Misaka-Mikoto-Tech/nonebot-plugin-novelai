@@ -207,7 +207,8 @@ class DrawBase:
         :json: 请求体
         """
         # 请求交互
-        async with aiohttp.ClientSession(headers=header) as session:
+        auth = aiohttp.BasicAuth(login=config.sd_user_name, password=config.sd_password) if config.sd_user_name else None
+        async with aiohttp.ClientSession(headers=header, auth=auth) as session:
             # 向服务器发送请求
             async with session.post(post_api, json=json) as resp:
                 if resp.status not in [200, 201]:

@@ -101,7 +101,15 @@ async def aidraw_get(
         logger.error(f'解析指令失败:{err_msg}')
         await aidraw_matcher.finish(f"命令解析出错了哦! 请仅回复“绘画”两个字查看使用帮助~")
 
-    if len(args.tags) == 0:
+    img_url = "" # 尝试提取消息中的图像，如果存在，则使用图生图模式
+    reply = event.reply
+    if reply:
+        for seg in reply.message["image"]:
+            img_url = seg.data["url"]
+    for seg in event.message["image"]:
+        img_url = seg.data["url"]
+    
+    if (not img_url) and len(args.tags) == 0:
         help_msg = MessageSegment.image(await get_help_image())
         help_msg += "在线文档: https://docs.qq.com/doc/DSE5YUG9wRmJUUVdp"
         await aidraw_matcher.finish(help_msg)
@@ -157,13 +165,6 @@ async def aidraw_get(
             aidraw.ntags = LOW_QUALITY + aidraw.ntags
 
         # 以图生图预处理
-        img_url = ""
-        reply = event.reply
-        if reply:
-            for seg in reply.message["image"]:
-                img_url = seg.data["url"]
-        for seg in event.message["image"]:
-            img_url = seg.data["url"]
         if img_url:
             if config.novelai_paid:
                 async with aiohttp.ClientSession() as session:
@@ -254,7 +255,7 @@ async def fifo_gennerate(bot: Bot, aidraw: Draw = None):
                 model = aidraw.model.split('.')[0] if aidraw.model else 'None'
                 ntags = f'\n-u {aidraw.ntags_user}' if aidraw.ntags_user.strip() else ''
                 prompt_txt = f'绘画 {html.escape(aidraw.tags_user)} {html.escape(ntags)} \n\n' # 不转义 lora 标签会不显示
-                prompt_txt += f'-p "{aidraw.sampler}" -c {aidraw.scale} -t {aidraw.steps} '
+                prompt_txt += f'-sp "{aidraw.sampler}" -c {aidraw.scale} -t {aidraw.steps} '
                 if aidraw.img2img:
                     prompt_txt += f'-e {aidraw.strength} -n {aidraw.noise} '
                 prompt_txt += f'\n-r {aidraw.width}x{aidraw.height} -m {model}'

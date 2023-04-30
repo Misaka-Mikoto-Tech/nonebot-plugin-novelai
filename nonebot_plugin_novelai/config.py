@@ -63,6 +63,8 @@ class Config(BaseSettings):
     """bing的翻译key和region"""
     deepl_key: str = None
     """deepL的翻译key"""
+    sd_user_name: str = ''
+    sd_password: str = ''
 
     def keys(cls):
         return (
