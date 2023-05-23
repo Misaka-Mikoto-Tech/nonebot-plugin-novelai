@@ -62,17 +62,6 @@ aidraw_parser.add_argument(
     "-m", "--model", "-模型", type=str, help="使用模型", dest="model"
 )
 
-msg_sent_set:Set[str] = set() # bot 自己发送的消息
-
-"""消息发送钩子，用于记录自己发送的消息"""
-@Bot.on_called_api
-async def handle_group_message_sent(bot: Bot, exception: Optional[Exception], api: str, data: Dict[str, Any], result: Any):
-    global msg_sent_set
-    if result and (api in ['send_msg', 'send_group_msg', 'send_private_msg']):
-        msg_id = result.get('message_id', None)
-        if msg_id:
-            msg_sent_set.add(f"{bot.self_id}_{msg_id}")
-
 aidraw_matcher = C.command(
     "",
     aliases=CHINESE_COMMAND,
@@ -82,16 +71,6 @@ aidraw_matcher = C.command(
 async def aidraw_get(
     bot: Bot, event: GroupMessageEvent, command_arg: Message = CommandArg()
 ):
-    global msg_sent_set
-    if event.post_type == 'message_sent': # 通过bot.send发送的消息不处理
-        msg_key = f"{bot.self_id}_{event.message_id}"
-        if msg_key in msg_sent_set:
-            msg_sent_set.remove(msg_key)
-            return
-        
-    if len(msg_sent_set) > 10:
-        msg_sent_set.clear()
-
     user_id = str(event.user_id)
     group_id = str(event.group_id)
 
